@@ -1,0 +1,105 @@
+/* Gradientowe tło strony */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #3b82f6, #9333ea); /* Niebiesko-fioletowy gradient */
+  color: #111827;
+}
+
+/* Kontener formularza */
+.form-container {
+  max-width: 700px;
+  margin: 3rem auto;
+  background-color: #ffffff; /* Białe tło formularza */
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+}
+
+/* Tytuł formularza */
+.form-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1f2937; /* ciemny szary */
+}
+
+/* Sekcje formularza */
+.form-section {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb; /* delikatne oddzielenie */
+  padding-bottom: 1rem;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+/* Nagłówki sekcji */
+.form-section h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+/* Pola formularza */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+  color: #374151;
+}
+
+.form-input {
+  padding: 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+/* Checkboxy */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  gap: 0.4rem;
+  color: #4b5563;
+}
+
+/* Przycisk */
+.submit-btn {
+  width: 100%;
+  background: #6366f1;
+  color: white;
+  font-weight: 700;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background: #4338ca;
+}
