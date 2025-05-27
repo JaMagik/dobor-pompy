@@ -1,34 +1,77 @@
-import React, { useState } from "react";
+// src/components/PompaForm.jsx
+import React, { useState, useEffect } from "react";
 import { generatePDF } from "./PompaPDF";
+import FormSection from "./FormSection";
+import FormInput from "./FormInput";
+
+// Definicje pól formularza dla łatwiejszego zarządzania
+const sections = {
+  basic: {
+    title: "Podstawowe dane",
+    fields: [
+      { name: "imie", label: "Imię", required: true },
+      { name: "telefon", label: "Telefon", required: true },
+      { name: "email", label: "Email" },
+      { name: "adres", label: "Adres" },
+    ],
+  },
+  expectations: {
+    title: "Oczekiwania",
+    checkboxes: ["Pompa ciepła", "Panele fotowoltaiczne", "Rekuperacja"],
+  },
+  building: {
+    title: "Dane budynku",
+    fields: [
+      { name: "budynek", label: "Typ budynku" },
+      { name: "dataBudowy", label: "Data budowy" },
+      { name: "powierzchnia", label: "Powierzchnia całkowita" },
+      { name: "wysokosc", label: "Wysokość" },
+      { name: "konstrukcja", label: "Konstrukcja budynku" },
+      { name: "sciany", label: "Rodzaj ścian" },
+      { name: "ocieplenie", label: "Ocieplenie" },
+      { name: "docieplony", label: "Dom docieplony" },
+      { name: "okna", label: "Okna" },
+      { name: "drzwi", label: "Drzwi" },
+    ],
+  },
+  tech: {
+    title: "Parametry techniczne",
+    fields: [
+      { name: "izolacjaDachu", label: "Izolacja dachu" },
+      { name: "izolacjaPodlogi", label: "Izolacja podłogi" },
+      { name: "temperaturaZima", label: "Temperatura zimą" },
+      { name: "wentylacja", label: "Wentylacja" },
+      { name: "ileOsob", label: "CWU - ile osób" },
+      { name: "zrodlo", label: "Obecne źródło ogrzewania" },
+      { name: "system", label: "System ogrzewania" },
+      { name: "tempPodlogowe", label: "Temp. podłogowe" },
+      { name: "tempGrzejniki", label: "Temp. grzejniki" },
+      { name: "rodzajGrzejnika", label: "Rodzaj grzejnika" },
+    ],
+  },
+};
 
 export default function PompaForm() {
   const [form, setForm] = useState({
-    imie: "",
-    telefon: "",
-    email: "",
-    oczekiwania: [],
-    budynek: "",
-    adres: "",
-    dataBudowy: "",
-    powierzchnia: "",
-    wysokosc: "",
-    konstrukcja: "",
-    sciany: "",
-    ocieplenie: "",
-    docieplony: "",
-    okna: "",
-    drzwi: "",
-    izolacjaDachu: "",
-    izolacjaPodlogi: "",
-    temperaturaZima: "",
-    wentylacja: "",
-    ileOsob: "",
-    zrodlo: "",
-    system: "",
-    tempPodlogowe: "",
-    tempGrzejniki: "",
-    rodzajGrzejnika: "",
+    imie: "", telefon: "", email: "", oczekiwania: [], budynek: "",
+    adres: "", dataBudowy: "", powierzchnia: "", wysokosc: "",
+    konstrukcja: "", sciany: "", ocieplenie: "", docieplony: "",
+    okna: "", drzwi: "", izolacjaDachu: "", izolacjaPodlogi: "",
+    temperaturaZima: "", wentylacja: "", ileOsob: "", zrodlo: "",
+    system: "", tempPodlogowe: "", tempGrzejniki: "", rodzajGrzejnika: "",
   });
+  
+  const [isSubmittable, setIsSubmittable] = useState(false);
+
+  // Efekt do sprawdzania walidacji
+  useEffect(() => {
+    // Prosta walidacja: sprawdź, czy wymagane pola nie są puste
+    if (form.imie.trim() !== "" && form.telefon.trim() !== "") {
+      setIsSubmittable(true);
+    } else {
+      setIsSubmittable(false);
+    }
+  }, [form.imie, form.telefon]);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -46,7 +89,9 @@ export default function PompaForm() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    generatePDF(form);
+    if (isSubmittable) {
+      generatePDF(form);
+    }
   }
 
   return (
@@ -54,98 +99,59 @@ export default function PompaForm() {
       <h2 className="form-title">Dane do doboru pompy ciepła</h2>
 
       <form onSubmit={handleSubmit}>
-        {/* Podstawowe dane */}
-        <div className="form-section">
-          <h3>Podstawowe dane</h3>
-          {["imie", "telefon", "email", "adres"].map((field) => (
-            <div key={field} className="form-group">
-              <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-              <input
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-                placeholder={`Wpisz ${field}`}
-                className="form-input"
-              />
-            </div>
+        <FormSection title={sections.basic.title}>
+          {sections.basic.fields.map((field) => (
+            <FormInput
+              key={field.name}
+              {...field}
+              value={form[field.name]}
+              onChange={handleChange}
+            />
           ))}
-        </div>
+        </FormSection>
 
-        {/* Oczekiwania */}
-        <div className="form-section">
-          <h3>Oczekiwania</h3>
+        <FormSection title={sections.expectations.title}>
           <div className="checkbox-group">
-            {["Pompa ciepła", "Panele fotowoltaiczne", "Rekuperacja"].map((item) => (
+            {sections.expectations.checkboxes.map((item) => (
               <label key={item} className="checkbox-label">
                 <input
                   type="checkbox"
                   name="oczekiwania"
                   value={item}
+                  checked={form.oczekiwania.includes(item)}
                   onChange={handleChange}
                 />
                 {item}
               </label>
             ))}
           </div>
-        </div>
-
-        {/* Dane budynku */}
-        <div className="form-section">
-          <h3>Dane budynku</h3>
-          {[
-            ["Typ budynku", "budynek"],
-            ["Data budowy", "dataBudowy"],
-            ["Powierzchnia całkowita", "powierzchnia"],
-            ["Wysokość", "wysokosc"],
-            ["Konstrukcja budynku", "konstrukcja"],
-            ["Rodzaj ścian", "sciany"],
-            ["Ocieplenie", "ocieplenie"],
-            ["Dom docieplony", "docieplony"],
-            ["Okna", "okna"],
-            ["Drzwi", "drzwi"],
-          ].map(([label, name]) => (
-            <div key={name} className="form-group">
-              <label className="form-label">{label}</label>
-              <input
-                name={name}
-                value={form[name]}
-                onChange={handleChange}
-                placeholder={`Wpisz ${label.toLowerCase()}`}
-                className="form-input"
-              />
-            </div>
+        </FormSection>
+        
+        <FormSection title={sections.building.title}>
+          {sections.building.fields.map((field) => (
+            <FormInput
+              key={field.name}
+              {...field}
+              value={form[field.name]}
+              onChange={handleChange}
+            />
           ))}
-        </div>
-
-        {/* Parametry techniczne */}
-        <div className="form-section">
-          <h3>Parametry techniczne</h3>
-          {[
-            ["Izolacja dachu", "izolacjaDachu"],
-            ["Izolacja podłogi", "izolacjaPodlogi"],
-            ["Temperatura zimą", "temperaturaZima"],
-            ["Wentylacja", "wentylacja"],
-            ["CWU - ile osób", "ileOsob"],
-            ["Obecne źródło ogrzewania", "zrodlo"],
-            ["System ogrzewania", "system"],
-            ["Temp. podłogowe", "tempPodlogowe"],
-            ["Temp. grzejniki", "tempGrzejniki"],
-            ["Rodzaj grzejnika", "rodzajGrzejnika"],
-          ].map(([label, name]) => (
-            <div key={name} className="form-group">
-              <label className="form-label">{label}</label>
-              <input
-                name={name}
-                value={form[name]}
-                onChange={handleChange}
-                placeholder={`Wpisz ${label.toLowerCase()}`}
-                className="form-input"
-              />
-            </div>
+        </FormSection>
+        
+        <FormSection title={sections.tech.title}>
+          {sections.tech.fields.map((field) => (
+            <FormInput
+              key={field.name}
+              {...field}
+              value={form[field.name]}
+              onChange={handleChange}
+            />
           ))}
-        </div>
+        </FormSection>
 
-        <button type="submit" className="submit-btn">Wygeneruj PDF</button>
+        <button type="submit" className="submit-btn" disabled={!isSubmittable}>
+          Wygeneruj PDF
+        </button>
       </form>
     </div>
   );
