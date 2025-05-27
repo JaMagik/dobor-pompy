@@ -9,10 +9,10 @@ const sections = {
   basic: {
     title: "Podstawowe dane",
     fields: [
-      { name: "imie", label: "Imię", required: true },
-      { name: "telefon", label: "Telefon", required: true },
-      { name: "email", label: "Email" },
-      { name: "adres", label: "Adres" },
+      { name: "imie", label: "Imię", required: true, type: "text" },
+      { name: "telefon", label: "Telefon", required: true, type: "text" },
+      { name: "email", label: "Email", type: "email" },
+      { name: "adres", label: "Adres", type: "text" },
     ],
   },
   expectations: {
@@ -22,31 +22,155 @@ const sections = {
   building: {
     title: "Dane budynku",
     fields: [
-      { name: "budynek", label: "Typ budynku" },
-      { name: "dataBudowy", label: "Data budowy" },
-      { name: "powierzchnia", label: "Powierzchnia całkowita" },
-      { name: "wysokosc", label: "Wysokość" },
-      { name: "konstrukcja", label: "Konstrukcja budynku" },
-      { name: "sciany", label: "Rodzaj ścian" },
-      { name: "ocieplenie", label: "Ocieplenie" },
-      { name: "docieplony", label: "Dom docieplony" },
-      { name: "okna", label: "Okna" },
-      { name: "drzwi", label: "Drzwi" },
+      {
+        name: "budynek",
+        label: "Typ budynku",
+        type: "select",
+        options: [
+          "",
+          "Jednorodzinny",
+          "Bliźniak",
+          "Szeregowy",
+          "Wielorodzinny (np. kamienica, blok)",
+          "Gospodarczy",
+          "Usługowy",
+          "Inny",
+        ],
+      },
+      {
+        name: "dataBudowy",
+        label: "Data budowy",
+        type: "select",
+        options: [
+          "",
+          "Przed 1945",
+          "1945 - 1970",
+          "1971 - 1990",
+          "1991 - 2000",
+          "2001 - 2010",
+          "2011 - 2020",
+          "Po 2020",
+          "W trakcie budowy",
+        ],
+      },
+      { name: "powierzchnia", label: "Powierzchnia całkowita", type: "text" },
+      // Wysokość usunięta
+      {
+        name: "konstrukcja",
+        label: "Konstrukcja budynku",
+        type: "select",
+        options: [
+          "",
+          "Murowana",
+          "Drewniana (np. szkieletowa, z bali)",
+          "Wielka płyta",
+          "Mieszana",
+          "Inna",
+        ],
+      },
+      {
+        name: "sciany",
+        label: "Rodzaj ścian",
+        type: "select",
+        options: [
+          "",
+          "Cegła pełna",
+          "Pustak ceramiczny (np. Porotherm, Leier)",
+          "Beton komórkowy (np. Suporex, Ytong)",
+          "Silikaty",
+          "Pustak żużlobetonowy",
+          "Drewno",
+          "Inne",
+        ],
+      },
+      {
+        name: "ocieplenie",
+        label: "Ocieplenie",
+        type: "select",
+        options: [
+          "",
+          "Styropian (biały, grafitowy)",
+          "Wełna mineralna (skalna, szklana)",
+          "Pianka poliuretanowa (PUR/PIR)",
+          "Brak ocieplenia",
+          "Nie wiem",
+          "Inne",
+        ],
+      },
+      { name: "docieplony", label: "Dom docieplony", type: "text" },
+      { name: "okna", label: "Okna", type: "text", placeholder: "Wpisz rodzaj okien i ich ilość" },
+      { name: "drzwi", label: "Drzwi", type: "text", placeholder: "Wpisz rodzaj drzwi i ich ilość" },
     ],
   },
   tech: {
     title: "Parametry techniczne",
     fields: [
-      { name: "izolacjaDachu", label: "Izolacja dachu" },
-      { name: "izolacjaPodlogi", label: "Izolacja podłogi" },
-      { name: "temperaturaZima", label: "Temperatura zimą" },
-      { name: "wentylacja", label: "Wentylacja" },
-      { name: "ileOsob", label: "CWU - ile osób" },
-      { name: "zrodlo", label: "Obecne źródło ogrzewania" },
-      { name: "system", label: "System ogrzewania" },
-      { name: "tempPodlogowe", label: "Temp. podłogowe" },
-      { name: "tempGrzejniki", label: "Temp. grzejniki" },
-      { name: "rodzajGrzejnika", label: "Rodzaj grzejnika" },
+      {
+        name: "izolacjaDachu",
+        label: "Izolacja dachu",
+        type: "select",
+        options: [
+          "",
+          "Wełna mineralna (skalna, szklana)",
+          "Styropian / Styropapa",
+          "Pianka poliuretanowa (PUR/PIR)",
+          "Celuloza (włókna celulozowe)",
+          "Brak ocieplenia",
+          "Nie wiem",
+          "Inne",
+        ],
+      },
+      { name: "izolacjaPodlogi", label: "Izolacja podłogi", type: "text" },
+      // Temperatura zimą usunięta
+      {
+        name: "wentylacja",
+        label: "Wentylacja",
+        type: "select",
+        options: [
+            "",
+            "Grawitacyjna",
+            "Mechaniczna z odzyskiem ciepła (Rekuperacja)",
+            "Mechaniczna (bez odzysku)",
+            "Inna"
+        ]
+      },
+      { name: "ileOsob", label: "CWU - ile osób", type: "text" },
+      {
+        name: "zrodlo",
+        label: "Obecne źródło ogrzewania",
+        type: "select",
+        options: [
+            "",
+            "Kocioł węglowy",
+            "Kocioł gazowy",
+            "Kocioł olejowy",
+            "Kocioł na pellet/drewno",
+            "Ogrzewanie elektryczne (np. grzejniki, piece akumulacyjne)",
+            "Kominek z płaszczem wodnym",
+            "Miejska sieć ciepłownicza",
+            "Brak - nowy budynek",
+            "Inne"
+        ]
+      },
+      { name: "system", label: "System ogrzewania", type: "text" }, // To pole można by też rozwinąć na select jeśli są typowe systemy
+      // Temp. podłogowe usunięte
+      // Temp. grzejniki usunięte
+      {
+        name: "rodzajGrzejnika",
+        label: "Rodzaj grzejnika",
+        type: "select",
+        options: [
+            "",
+            "Grzejniki panelowe stalowe",
+            "Grzejniki aluminiowe",
+            "Grzejniki żeliwne",
+            "Grzejniki konwektorowe",
+            "Ogrzewanie podłogowe",
+            "Klimakonwektory",
+            "Mieszane (np. podłogówka + grzejniki)",
+            "Inne"
+        ]
+      },
     ],
   },
 };
@@ -54,11 +178,11 @@ const sections = {
 export default function PompaForm() {
   const [form, setForm] = useState({
     imie: "", telefon: "", email: "", oczekiwania: [], budynek: "",
-    adres: "", dataBudowy: "", powierzchnia: "", wysokosc: "",
+    adres: "", dataBudowy: "", powierzchnia: "", /* wysokosc usunięte */
     konstrukcja: "", sciany: "", ocieplenie: "", docieplony: "",
     okna: "", drzwi: "", izolacjaDachu: "", izolacjaPodlogi: "",
-    temperaturaZima: "", wentylacja: "", ileOsob: "", zrodlo: "",
-    system: "", tempPodlogowe: "", tempGrzejniki: "", rodzajGrzejnika: "",
+    /* temperaturaZima usunięte */ wentylacja: "", ileOsob: "", zrodlo: "",
+    system: "", /* tempPodlogowe usunięte */ /* tempGrzejniki usunięte */ rodzajGrzejnika: "",
   });
   
   const [isSubmittable, setIsSubmittable] = useState(false);
