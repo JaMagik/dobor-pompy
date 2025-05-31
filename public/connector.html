@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dobór Pompy Power-Up Connector</title>
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script>
+      window.TrelloPowerUp.initialize({
+        'card-buttons': function(t, options) {
+          return [{
+            icon: 'https://dobor-pompy.vercel.app/favicon.ico',
+            text: 'Dobór pompy',
+            callback: function(t) {
+              return t.popup({
+                title: 'Formularz doboru pompy',
+                url: 'https://dobor-pompy.vercel.app/', // Twoja appka
+                height: 600,
+              });
+            }
+          }];
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h3>Dobór Pompy Power-Up</h3>
+  </body>
+</html>
