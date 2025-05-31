@@ -1,11 +1,8 @@
 // src/components/PompaPDF.jsx
 
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { openSansRegular, openSansBold } from "../data/fonts.js";
 import { logoBase64 } from "../data/logo.js";
 
-// Mapa tłumaczeń (bez zmian)
 const labels = {
   imie: "Imię i nazwisko",
   telefon: "Telefon",
@@ -34,8 +31,7 @@ const labels = {
   rodzajGrzejnika: "Rodzaj grzejników",
 };
 
-export function generatePDF(form) {
-  const doc = new jsPDF();
+export function generatePDF(form, doc, autoTable) {
   let finalY = 0;
 
   // --- REJESTRACJA CZCIONEK ---
@@ -67,19 +63,18 @@ export function generatePDF(form) {
     const pageCount = doc.internal.getNumberOfPages();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    
+
     // ZMIANA: Poprawione dodawanie logo z zachowaniem proporcji
     if (logoBase64 && logoBase64.startsWith('data:image')) {
       const logoWidth = 50; // Ustaw stałą szerokość dla loga
-      // Podając wysokość jako 0, jsPDF automatycznie obliczy ją z proporcji
-      doc.addImage(logoBase64, 'PNG', 15, 15, logoWidth, 0); 
+      doc.addImage(logoBase64, 'PNG', 15, 15, logoWidth, 0);
     }
-    
+
     doc.setFontSize(10);
     doc.setFont("OpenSans", "normal");
     doc.text(`Strona ${pageCount}`, pageWidth - 20, pageHeight - 10, { align: "right" });
   };
-  
+
   const createSection = (title, data, startY) => {
     doc.setFont("OpenSans", "bold");
     doc.setFontSize(14);
@@ -106,16 +101,25 @@ export function generatePDF(form) {
   drawBackground();
   drawPageHeaderAndFooter();
 
-  // ZMIANA: Przesunięcie tytułu w dół, aby był pod logiem
   doc.setFont("OpenSans", "bold");
   doc.setFontSize(20);
   doc.text("Formularz Doboru Pompy Ciepła", 105, 40, { align: "center" });
-  
+
   const clientData = { imie: form.imie, telefon: form.telefon, email: form.email, adres: form.adres };
   const expectationsData = { oczekiwania: form.oczekiwania };
-  const buildingData = { budynek: form.budynek, dataBudowy: form.dataBudowy, powierzchnia: form.powierzchnia, wysokosc: form.wysokosc, konstrukcja: form.konstrukcja, sciany: form.sciany, ocieplenie: form.ocieplenie, docieplony: form.docieplony, okna: form.okna, drzwi: form.drzwi };
-  
-  // ZMIANA: Przesunięcie pierwszej sekcji w dół
+  const buildingData = {
+    budynek: form.budynek,
+    dataBudowy: form.dataBudowy,
+    powierzchnia: form.powierzchnia,
+    wysokosc: form.wysokosc,
+    konstrukcja: form.konstrukcja,
+    sciany: form.sciany,
+    ocieplenie: form.ocieplenie,
+    docieplony: form.docieplony,
+    okna: form.okna,
+    drzwi: form.drzwi
+  };
+
   finalY = createSection("Dane Klienta", clientData, 55);
   finalY = createSection("Oczekiwania", expectationsData, finalY + 15);
   finalY = createSection("Dane Budynku", buildingData, finalY + 15);
@@ -125,9 +129,19 @@ export function generatePDF(form) {
   drawBackground();
   drawPageHeaderAndFooter();
 
-  const techData = { izolacjaDachu: form.izolacjaDachu, izolacjaPodlogi: form.izolacjaPodlogi, temperaturaZima: form.temperaturaZima, wentylacja: form.wentylacja, ileOsob: form.ileOsob, zrodlo: form.zrodlo, system: form.system, tempPodlogowe: form.tempPodlogowe, tempGrzejniki: form.tempGrzejniki, rodzajGrzejnika: form.rodzajGrzejnika };
+  const techData = {
+    izolacjaDachu: form.izolacjaDachu,
+    izolacjaPodlogi: form.izolacjaPodlogi,
+    temperaturaZima: form.temperaturaZima,
+    wentylacja: form.wentylacja,
+    ileOsob: form.ileOsob,
+    zrodlo: form.zrodlo,
+    system: form.system,
+    tempPodlogowe: form.tempPodlogowe,
+    tempGrzejniki: form.tempGrzejniki,
+    rodzajGrzejnika: form.rodzajGrzejnika
+  };
   createSection("Parametry Techniczne", techData, 30);
 
-  // --- ZAPIS DOKUMENTU ---
-  doc.save("formularz_doboru_pompy.pdf");
+  // UWAGA! Nie robimy doc.save("..."), tylko zwracamy doc
 }

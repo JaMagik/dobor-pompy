@@ -54,7 +54,6 @@ const sections = {
         ],
       },
       { name: "powierzchnia", label: "Powierzchnia całkowita", type: "text" },
-      // Wysokość usunięta
       {
         name: "konstrukcja",
         label: "Konstrukcja budynku",
@@ -121,17 +120,16 @@ const sections = {
         ],
       },
       { name: "izolacjaPodlogi", label: "Izolacja podłogi", type: "text" },
-      // Temperatura zimą usunięta
       {
         name: "wentylacja",
         label: "Wentylacja",
         type: "select",
         options: [
-            "",
-            "Grawitacyjna",
-            "Mechaniczna z odzyskiem ciepła (Rekuperacja)",
-            "Mechaniczna (bez odzysku)",
-            "Inna"
+          "",
+          "Grawitacyjna",
+          "Mechaniczna z odzyskiem ciepła (Rekuperacja)",
+          "Mechaniczna (bez odzysku)",
+          "Inna"
         ]
       },
       { name: "ileOsob", label: "CWU - ile osób", type: "text" },
@@ -140,35 +138,33 @@ const sections = {
         label: "Obecne źródło ogrzewania",
         type: "select",
         options: [
-            "",
-            "Kocioł węglowy",
-            "Kocioł gazowy",
-            "Kocioł olejowy",
-            "Kocioł na pellet/drewno",
-            "Ogrzewanie elektryczne (np. grzejniki, piece akumulacyjne)",
-            "Kominek z płaszczem wodnym",
-            "Miejska sieć ciepłownicza",
-            "Brak - nowy budynek",
-            "Inne"
+          "",
+          "Kocioł węglowy",
+          "Kocioł gazowy",
+          "Kocioł olejowy",
+          "Kocioł na pellet/drewno",
+          "Ogrzewanie elektryczne (np. grzejniki, piece akumulacyjne)",
+          "Kominek z płaszczem wodnym",
+          "Miejska sieć ciepłownicza",
+          "Brak - nowy budynek",
+          "Inne"
         ]
       },
-      { name: "system", label: "System ogrzewania", type: "text" }, // To pole można by też rozwinąć na select jeśli są typowe systemy
-      // Temp. podłogowe usunięte
-      // Temp. grzejniki usunięte
+      { name: "system", label: "System ogrzewania", type: "text" },
       {
         name: "rodzajGrzejnika",
         label: "Rodzaj grzejnika",
         type: "select",
         options: [
-            "",
-            "Grzejniki panelowe stalowe",
-            "Grzejniki aluminiowe",
-            "Grzejniki żeliwne",
-            "Grzejniki konwektorowe",
-            "Ogrzewanie podłogowe",
-            "Klimakonwektory",
-            "Mieszane (np. podłogówka + grzejniki)",
-            "Inne"
+          "",
+          "Grzejniki panelowe stalowe",
+          "Grzejniki aluminiowe",
+          "Grzejniki żeliwne",
+          "Grzejniki konwektorowe",
+          "Ogrzewanie podłogowe",
+          "Klimakonwektory",
+          "Mieszane (np. podłogówka + grzejniki)",
+          "Inne"
         ]
       },
     ],
@@ -178,18 +174,28 @@ const sections = {
 export default function PompaForm() {
   const [form, setForm] = useState({
     imie: "", telefon: "", email: "", oczekiwania: [], budynek: "",
-    adres: "", dataBudowy: "", powierzchnia: "", /* wysokosc usunięte */
+    adres: "", dataBudowy: "", powierzchnia: "",
     konstrukcja: "", sciany: "", ocieplenie: "", docieplony: "",
     okna: "", drzwi: "", izolacjaDachu: "", izolacjaPodlogi: "",
-    /* temperaturaZima usunięte */ wentylacja: "", ileOsob: "", zrodlo: "",
-    system: "", /* tempPodlogowe usunięte */ /* tempGrzejniki usunięte */ rodzajGrzejnika: "",
+    wentylacja: "", ileOsob: "", zrodlo: "",
+    system: "", rodzajGrzejnika: "",
   });
-  
+
   const [isSubmittable, setIsSubmittable] = useState(false);
+  const [cardId, setCardId] = useState(null); // <- nowy stan
+
+  // Pobierz cardId z Power-Upa
+  useEffect(() => {
+    if (window.TrelloPowerUp) {
+      const t = window.TrelloPowerUp.iframe();
+      t.card('id').then(card => {
+        setCardId(card.id);
+      });
+    }
+  }, []);
 
   // Efekt do sprawdzania walidacji
   useEffect(() => {
-    // Prosta walidacja: sprawdź, czy wymagane pola nie są puste
     if (form.imie.trim() !== "" && form.telefon.trim() !== "") {
       setIsSubmittable(true);
     } else {
@@ -211,10 +217,43 @@ export default function PompaForm() {
     }
   }
 
-  function handleSubmit(e) {
+  // Funkcja generująca PDF i uploadująca do Trello!
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (isSubmittable) {
-      generatePDF(form);
+    if (!isSubmittable) return;
+
+    // 1. Wygeneruj PDF (ale zamiast doc.save, pobierz blob!)
+    const jsPDF = (await import("jspdf")).default;
+    const autoTable = (await import("jspdf-autotable")).default;
+    const { generatePDF } = await import("./PompaPDF");
+
+    // --- Uwaga: generujemy PDF jako Blob (hack na pobranie z jsPDF)
+    const doc = new jsPDF();
+    generatePDF(form, doc, autoTable); // musisz przerobić funkcję generatePDF na przyjmującą istniejący obiekt doc
+    const pdfBlob = doc.output("blob");
+
+    if (!cardId) {
+      alert("Nie znaleziono ID karty Trello.");
+      return;
+    }
+
+    // 2. Upload do Trello
+    const formData = new FormData();
+    formData.append('file', pdfBlob, 'dobor-pompy.pdf');
+
+    // Podmień na swój własny token użytkownika (pobierz z https://trello.com/app-key)
+    const apiKey = "8a9a4adfbb1f91abc631181c4b722364";
+    const token = import.meta.env.VITE_TRELLO_TOKEN;
+
+    try {
+      const res = await fetch(
+        `https://api.trello.com/1/cards/${cardId}/attachments?key=${apiKey}&token=${token}`,
+        { method: 'POST', body: formData }
+      );
+      if (!res.ok) throw new Error('Błąd uploadu do Trello');
+      alert("PDF został dodany do karty Trello!");
+    } catch (err) {
+      alert("Błąd przy dodawaniu PDF do Trello: " + err.message);
     }
   }
 
@@ -250,7 +289,7 @@ export default function PompaForm() {
             ))}
           </div>
         </FormSection>
-        
+
         <FormSection title={sections.building.title}>
           {sections.building.fields.map((field) => (
             <FormInput
@@ -261,7 +300,7 @@ export default function PompaForm() {
             />
           ))}
         </FormSection>
-        
+
         <FormSection title={sections.tech.title}>
           {sections.tech.fields.map((field) => (
             <FormInput
@@ -274,7 +313,7 @@ export default function PompaForm() {
         </FormSection>
 
         <button type="submit" className="submit-btn" disabled={!isSubmittable}>
-          Wygeneruj PDF
+          Wygeneruj PDF i zapisz w Trello
         </button>
       </form>
     </div>
